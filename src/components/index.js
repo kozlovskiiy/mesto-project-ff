@@ -1,6 +1,6 @@
 import '../pages/index.css';
 import { createCard, toggleLike, removeCard } from './card.js';
-import { openModal, closeModal, closeOnClick } from './modals.js';
+import { openModal, closeModal, closeOnClick } from './modal.js';
 import { initialCards } from './cards.js';
 
 const places = document.querySelector('.places__list');
@@ -11,9 +11,9 @@ const newCardModal = document.querySelector('.popup_type_new-card');
 const imageModal = document.querySelector('.popup_type_image');
 const imageModalImg = imageModal.querySelector('.popup__image');
 const imageModalCaption = imageModal.querySelector('.popup__caption');
-const formElement = editModal.querySelector('.popup__form');
-const nameInput = formElement.querySelector('.popup__input_type_name');
-const jobInput = formElement.querySelector('.popup__input_type_description');
+const editformElement = editModal.querySelector('.popup__form');
+const nameInput = editformElement.querySelector('.popup__input_type_name');
+const jobInput = editformElement.querySelector('.popup__input_type_description');
 const cardFormElement = newCardModal.querySelector('.popup__form');
 const cardTitleInput = newCardModal.querySelector('.popup__input_type_card-name');
 const cardLinkInput = newCardModal.querySelector('.popup__input_type_url');
@@ -39,7 +39,7 @@ newCardButton.addEventListener('click', () => openModal(newCardModal));
   modal.addEventListener('click', (e) => closeOnClick(e, modal));
 });
 
-function handleFormSubmit(evt) {
+function editFormSubmit(evt) {
   evt.preventDefault();
 
   const name = nameInput.value;
@@ -65,13 +65,12 @@ function addNewCard(evt) {
   const newCard = createCard(newCardData, removeCard, toggleLike, openImageModal);
   places.prepend(newCard);
   
-  cardTitleInput.value = '';
-  cardLinkInput.value = '';
+  cardFormElement.reset()
   closeModal(newCardModal);
 }
 
 cardFormElement.addEventListener('submit', addNewCard);
-formElement.addEventListener('submit', handleFormSubmit);
+editformElement.addEventListener('submit', editFormSubmit);
 
 initialCards.forEach((item) => {
   const card = createCard(item, removeCard, toggleLike, openImageModal);

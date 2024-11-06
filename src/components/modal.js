@@ -3,7 +3,7 @@ export function openModal(modal) {
   setTimeout(() => {
     modal.classList.add('popup_is-opened');
   }, 10);
-  document.addEventListener('keydown', (e) => closeOnEscape(e, modal));
+  document.addEventListener('keydown', closeOnEscape);
 }
 
 export function closeModal(modal) {
@@ -11,13 +11,16 @@ export function closeModal(modal) {
   setTimeout(() => {
     modal.classList.remove('popup_is-animated');
   }, 600);
-  document.removeEventListener('keydown', (e) => closeOnEscape(e, modal));
+  document.removeEventListener('keydown', closeOnEscape);
 }
 
-function closeOnEscape(e, modal) {
-  if (e.key === 'Escape') {
-    closeModal(modal);
-  }
+function closeOnEscape(e) { 
+  if (e.key === 'Escape') { 
+    const modal = document.querySelector('.popup_is-opened');
+    if (modal) {
+      closeModal(modal);
+    }
+  } 
 }
 
 export function closeOnClick(e, modal) {
