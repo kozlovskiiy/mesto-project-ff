@@ -76,3 +76,22 @@ export const deleteCardFromServer = (cardId) => {
   });
 };
 
+export function addLikeToServer(cardId) {
+  return fetch(`https://nomoreparties.co/v1/pwff-cohort-1/cards/likes/${cardId}`, {
+    method: 'PUT',
+    headers: {
+      authorization: '41411de9-cf42-4ce5-b3d1-441d6ba71a09',
+      'Content-Type': 'application/json'
+    }
+  }).then((res) => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`));
+}
+
+export function removeLikeFromServer(cardId) {
+  return fetch(`https://nomoreparties.co/v1/pwff-cohort-1/cards/likes/${cardId}`, {
+    method: 'DELETE',
+    headers: {
+      authorization: '41411de9-cf42-4ce5-b3d1-441d6ba71a09',
+      'Content-Type': 'application/json'
+    }
+  }).then((res) => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`));
+}

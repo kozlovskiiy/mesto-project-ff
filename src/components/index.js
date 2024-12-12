@@ -119,7 +119,7 @@ Promise.all([getUserInfo(), getCards()])
     profileDescription.textContent = userData.about;
 
     cardsData.forEach((item) => {
-      const card = createCard(item, removeCard, toggleLike, openImageModal, userId);
+      const card = createCard(item, removeCard, openImageModal, userId);
       places.append(card);
     });
     cardsData.forEach((item, index) => {
