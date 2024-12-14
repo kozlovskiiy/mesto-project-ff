@@ -62,7 +62,7 @@ export function sendCardToServer(name, link) {
 }
 
 export const deleteCardFromServer = (cardId) => {
-  return fetch(`https://nomoreparties.co/v1/cohortId/cards/${cardId}`, {
+  return fetch(`https://nomoreparties.co/v1/pwff-cohort-1/cards/likes/${cardId}`, {
     method: 'DELETE',
     headers: {
       authorization: '41411de9-cf42-4ce5-b3d1-441d6ba71a09',
@@ -95,3 +95,22 @@ export function removeLikeFromServer(cardId) {
     }
   }).then((res) => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`));
 }
+
+
+export const changeAvatar = function (avatarUrl) {
+  return fetch('https://nomoreparties.co/v1/pwff-cohort-1/users/me/avatar', {
+    method: 'PATCH',
+    headers: {
+      authorization: '41411de9-cf42-4ce5-b3d1-441d6ba71a09',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      avatar: avatarUrl 
+    })
+  }).then((res) => {
+    if (res.ok) {
+      return res.json();
+    }
+    return Promise.reject(`Ошибка: ${res.status}`);
+  });
+};

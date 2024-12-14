@@ -1,8 +1,10 @@
 import '../pages/index.css';
-import { createCard, toggleLike, removeCard } from './card.js';
+import { createCard, toggleLike, removeCard, renderLoading } from './card.js';
 import { openModal, closeModal, closeOnClick } from './modal.js';
-import { getUserInfo, getCards, changeUserName, sendCardToServer } from './api.js';
+import { getUserInfo, getCards, changeUserName, sendCardToServer, deleteCardFromServer, changeAvatar } from './api.js';
 import { enableValidation, clearValidation } from './validation.js';
+
+
 
 enableValidation({
   formSelector: '.popup__form',
@@ -29,8 +31,12 @@ const cardTitleInput = newCardModal.querySelector('.popup__input_type_card-name'
 const cardLinkInput = newCardModal.querySelector('.popup__input_type_url');
 const profileTitle = document.querySelector('.profile__title');
 const profileDescription = document.querySelector('.profile__description');
-
+const deleteCardModal = document.querySelector('.popup_type_confirm');
+const changeAvatarModal = document.querySelector('.popup_type_changeavatar')
+const profileImage = document.querySelector('.profile__image')
 let userId;
+
+
 
 function openImageModal(cardData) {
   imageModalImg.src = cardData.link;
@@ -53,6 +59,19 @@ editProfileButton.addEventListener('click', () => {
   openModal(editModal);
 });
 
+profileImage.addEventListener('click', () => {
+  openModal(changeAvatarModal);
+  const avatarUrlInput = changeAvatarModal.querySelector('.popup__input_type_url');
+  const form = changeAvatarModal.querySelector('.popup__form')
+  changeAvatarModal.addEventListener('click', (e) => {
+    if (e.target.classList.contains('popup__button')) {
+      changeAvatar(avatarUrlInput.value)
+      closeModal(changeAvatarModal)
+      form.reset()
+    }
+  })
+})
+
 newCardButton.addEventListener('click', () => {
   clearValidation(cardFormElement, {
     formSelector: '.popup__form',
@@ -65,8 +84,33 @@ newCardButton.addEventListener('click', () => {
   openModal(newCardModal);
 });
 
-[editModal, newCardModal, imageModal].forEach((modal) => {
+[editModal, newCardModal, imageModal, deleteCardModal, changeAvatarModal].forEach((modal) => {
   modal.addEventListener('click', (e) => closeOnClick(e, modal));
+});
+
+places.addEventListener('click', (e) => {
+  if (e.target.classList.contains('card__delete-button')) {
+    const cardToDelete = e.target.closest('.card'); 
+    const cardId = cardToDelete.dataset.id; 
+
+    openModal(deleteCardModal);
+
+    deleteCardModal.addEventListener('click', function handleDelete(e) {
+      if (e.target.classList.contains('popup__button')) {
+        renderLoading(true)
+        deleteCardFromServer(cardId) 
+          .then(() => {
+            removeCard(cardToDelete); 
+            closeModal(deleteCardModal);
+          })
+          .catch((err) => console.error(`Ошибка удаления карточки: ${err}`))
+          .finally(() => {
+            renderLoading(false)
+        });
+      }
+      deleteCardModal.removeEventListener('click', handleDelete); 
+    });
+  }
 });
 
 function editFormSubmit(evt) {
@@ -77,21 +121,22 @@ function editFormSubmit(evt) {
 
   profileTitle.textContent = name;
   profileDescription.textContent = description;
+  renderLoading(true)
   changeUserName(name, description);
+  renderLoading(false)
   closeModal(editModal);
 }
 
 function addNewCard(evt) {
   evt.preventDefault();
-
   const title = cardTitleInput.value;
   const link = cardLinkInput.value;
 
   const newCardData = {
     name: title,
     link: link,
-    likes: [], // Пустой массив для новых карточек
-    owner: { _id: userId } // Текущий пользователь как владелец
+    likes: [], 
+    owner: { _id: userId } 
   };
 
   const newCard = createCard(newCardData, removeCard, toggleLike, openImageModal, userId);
@@ -107,14 +152,15 @@ function addNewCard(evt) {
     errorClass: 'popup__error_visible'
   });
   closeModal(newCardModal);
+  renderLoading(false)
 }
 
-cardFormElement.addEventListener('submit', addNewCard);
+cardFormElement.addEventListener('submit', addNewCard, renderLoading(true));
 editformElement.addEventListener('submit', editFormSubmit);
 
 Promise.all([getUserInfo(), getCards()])
   .then(([userData, cardsData]) => {
-    userId = userData._id; // Сохранение ID пользователя
+    userId = userData._id;
     profileTitle.textContent = userData.name;
     profileDescription.textContent = userData.about;
 

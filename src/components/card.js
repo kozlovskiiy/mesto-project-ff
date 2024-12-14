@@ -1,4 +1,4 @@
-import { deleteCardFromServer, addLikeToServer, removeLikeFromServer } from './api.js';
+import { addLikeToServer, removeLikeFromServer } from './api.js';
 
 export function toggleLike(evt, cardId, likesCounter) {
   const likeButton = evt.target;
@@ -42,13 +42,7 @@ export function createCard(cardData, removeCard, openImage, userId) {
 
   if (cardData.owner._id !== userId) {
     removeButton.style.display = 'none';
-  } else {
-    removeButton.addEventListener('click', () => {
-      deleteCardFromServer(cardData._id)
-        .then(() => removeCard(card))
-        .catch((err) => console.error(`Ошибка удаления карточки: ${err}`));
-    });
-  }
+  } 
 
   cardImage.addEventListener('click', () => openImage(cardData));
   likeButton.addEventListener('click', (evt) => toggleLike(evt, cardData._id, likesCounter));
@@ -58,4 +52,13 @@ export function createCard(cardData, removeCard, openImage, userId) {
 
 export function removeCard(card) {
   card.remove();
+}
+
+export function renderLoading(isLoading) {
+  const button = document.querySelector('.popup__button')
+  if (isLoading) {
+    button.textContent = "Сохранение..."
+  } else {
+    button.textContent = "Сохранить"
+  }
 }

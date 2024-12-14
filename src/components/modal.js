@@ -28,3 +28,4 @@ export function closeOnClick(e, modal) {
     closeModal(modal);
   }
 }
+
