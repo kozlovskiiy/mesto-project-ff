@@ -20,7 +20,7 @@ export function toggleLike(evt, cardId, likesCounter) {
   }
 }
 
-export function createCard(cardData, removeCard, openImage, userId) {
+export function createCard(cardData, openImage, openDeleteModal, userId) {
   const cardTemplate = document.querySelector('#card-template').content;
   const card = cardTemplate.querySelector('.card').cloneNode(true);
   const cardImage = card.querySelector('.card__image');
@@ -42,7 +42,11 @@ export function createCard(cardData, removeCard, openImage, userId) {
 
   if (cardData.owner._id !== userId) {
     removeButton.style.display = 'none';
-  } 
+  } else {
+    removeButton.addEventListener('click', () => {
+      openDeleteModal(card, cardData._id);
+    });
+  }
 
   cardImage.addEventListener('click', () => openImage(cardData));
   likeButton.addEventListener('click', (evt) => toggleLike(evt, cardData._id, likesCounter));
@@ -52,13 +56,4 @@ export function createCard(cardData, removeCard, openImage, userId) {
 
 export function removeCard(card) {
   card.remove();
-}
-
-export function renderLoading(isLoading) {
-  const button = document.querySelector('.popup__button')
-  if (isLoading) {
-    button.textContent = "Сохранение..."
-  } else {
-    button.textContent = "Сохранить"
-  }
 }

@@ -70,8 +70,7 @@ export const clearValidation = (formElement, settings) => {
   const buttonElement = formElement.querySelector(settings.submitButtonSelector);
 
   inputList.forEach((inputElement) => {
-    hideInputError(formElement, inputElement, settings); // очищаем ошибку для каждого поля
-    inputElement.classList.remove(settings.inputErrorClass); // убираем класс ошибки с инпута
+    hideInputError(formElement, inputElement, settings);
   });
 
   buttonElement.disabled = true;
