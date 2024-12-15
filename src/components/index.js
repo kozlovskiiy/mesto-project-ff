@@ -52,26 +52,25 @@ function openImageModal(cardData) {
   imageModalImg.alt = `Изображение ${cardData.name}`;
   imageModalCaption.textContent = cardData.name;
   openModal(imageModal);
-}
+}  
 
 function openDeleteModal(card, cardId) {
   openModal(deleteCardModal);
 
   const confirmButton = deleteCardModal.querySelector('.popup__button');
-  const handleConfirm = () => {
-    renderLoading(true, confirmButton);
+  confirmButton.replaceWith(confirmButton.cloneNode(true));
+  const freshConfirmButton = deleteCardModal.querySelector('.popup__button');
+  freshConfirmButton.addEventListener('click', () => {
+    renderLoading(true, freshConfirmButton);
+
     deleteCardFromServer(cardId)
       .then(() => {
         removeCard(card);
         closeModal(deleteCardModal);
       })
       .catch((err) => console.error(`Ошибка удаления карточки: ${err}`))
-      .finally(() => renderLoading(false, confirmButton));
-
-    confirmButton.removeEventListener('click', handleConfirm);
-  };
-
-  confirmButton.addEventListener('click', handleConfirm);
+      .finally(() => renderLoading(false, freshConfirmButton));
+  });
 }
 
 editProfileButton.addEventListener('click', () => {
