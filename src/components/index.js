@@ -66,8 +66,13 @@ profileImage.addEventListener('click', () => {
   changeAvatarModal.addEventListener('click', (e) => {
     if (e.target.classList.contains('popup__button')) {
       changeAvatar(avatarUrlInput.value)
-      closeModal(changeAvatarModal)
-      form.reset()
+      .then((res) => {
+        profileImage.style.backgroundImage = `url(${res.avatar})`;
+        closeModal(changeAvatarModal)
+        form.reset()
+      })
+      .catch((err) => console.error(`Ошибка изменения аватара: ${err}`))
+      .finally(() => renderLoading(false))
     }
   })
 })
@@ -128,34 +133,38 @@ function editFormSubmit(evt) {
 }
 
 function addNewCard(evt) {
+  
   evt.preventDefault();
   const title = cardTitleInput.value;
   const link = cardLinkInput.value;
-
+  
   const newCardData = {
     name: title,
     link: link,
     likes: [], 
     owner: { _id: userId } 
   };
-
-  const newCard = createCard(newCardData, removeCard, toggleLike, openImageModal, userId);
-  places.prepend(newCard);
-  sendCardToServer(title, link);
-  cardFormElement.reset();
-  clearValidation(cardFormElement, {
-    formSelector: '.popup__form',
-    inputSelector: '.popup__input',
-    submitButtonSelector: '.popup__button',
-    inactiveButtonClass: 'popup__button_disabled',
-    inputErrorClass: 'popup__input_type_error',
-    errorClass: 'popup__error_visible'
-  });
-  closeModal(newCardModal);
-  renderLoading(false)
+  renderLoading(true)
+  sendCardToServer(title, link)
+    .then(() => {
+      const newCard = createCard(newCardData, removeCard, toggleLike, openImageModal, userId);
+      places.prepend(newCard);
+      cardFormElement.reset();
+      clearValidation(cardFormElement, {
+        formSelector: '.popup__form',
+        inputSelector: '.popup__input',
+        submitButtonSelector: '.popup__button',
+        inactiveButtonClass: 'popup__button_disabled',
+        inputErrorClass: 'popup__input_type_error',
+        errorClass: 'popup__error_visible'
+      });
+      closeModal(newCardModal);
+    })
+    .catch((err) => console.error(`Ошибка добавления карточки: ${err}`))
+    .finally(() => renderLoading(false))
 }
 
-cardFormElement.addEventListener('submit', addNewCard, renderLoading(true));
+cardFormElement.addEventListener('submit', addNewCard);
 editformElement.addEventListener('submit', editFormSubmit);
 
 Promise.all([getUserInfo(), getCards()])
@@ -163,7 +172,7 @@ Promise.all([getUserInfo(), getCards()])
     userId = userData._id;
     profileTitle.textContent = userData.name;
     profileDescription.textContent = userData.about;
-
+    profileImage.style.backgroundImage = `url(${userData.avatar})`;
     cardsData.forEach((item) => {
       const card = createCard(item, removeCard, openImageModal, userId);
       places.append(card);
