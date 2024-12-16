@@ -42,6 +42,8 @@ const profileImage = document.querySelector('.profile__image');
 const avatarUrlInput = changeAvatarModal.querySelector('.popup__input_type_url');
 const avatarForm = changeAvatarModal.querySelector('.popup__form');
 let userId;
+let cardToDelete = null; 
+let cardIdToDelete = null;
 
 function renderLoading(isLoading, button) {
   button.textContent = isLoading ? 'Сохранение...' : 'Сохранить';
@@ -54,24 +56,28 @@ function openImageModal(cardData) {
   openModal(imageModal);
 }  
 
+
 function openDeleteModal(card, cardId) {
+  cardToDelete = card;
+  cardIdToDelete = cardId;
   openModal(deleteCardModal);
-
-  const confirmButton = deleteCardModal.querySelector('.popup__button');
-  confirmButton.replaceWith(confirmButton.cloneNode(true));
-  const freshConfirmButton = deleteCardModal.querySelector('.popup__button');
-  freshConfirmButton.addEventListener('click', () => {
-    renderLoading(true, freshConfirmButton);
-
-    deleteCardFromServer(cardId)
-      .then(() => {
-        removeCard(card);
-        closeModal(deleteCardModal);
-      })
-      .catch((err) => console.error(`Ошибка удаления карточки: ${err}`))
-      .finally(() => renderLoading(false, freshConfirmButton));
-  });
 }
+const confirmButton = deleteCardModal.querySelector('.popup__button');
+confirmButton.addEventListener('click', () => {
+  if (!cardToDelete || !cardIdToDelete) return;
+
+  renderLoading(true, confirmButton); 
+
+  deleteCardFromServer(cardIdToDelete)
+    .then(() => {
+      removeCard(cardToDelete);
+      cardToDelete = null; 
+      cardIdToDelete = null;
+      closeModal(deleteCardModal);
+    })
+    .catch((err) => console.error(`Ошибка удаления карточки: ${err}`))
+    .finally(() => renderLoading(false, confirmButton));
+});
 
 editProfileButton.addEventListener('click', () => {
   nameInput.value = profileTitle.textContent;
